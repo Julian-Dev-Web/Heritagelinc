@@ -1,0 +1,33 @@
+name: heritagelinc
+description: "HeritageLinc — Geofenced Transit and AI-Guided Educational Museum App"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  flutter_svg: ^2.0.10+1
+  flutter_dotenv: ^5.1.0
+  supabase_flutter: ^2.5.6
+
+  # Add these later when you build Scan / Lobby / TTS features:
+  # flutter_tts: ^4.0.2
+  # qr_flutter: ^4.1.0
+  # mobile_scanner: ^5.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - .env
