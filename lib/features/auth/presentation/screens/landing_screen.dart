@@ -1,143 +1,78 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+
 import '../../../../core/routes/app_routes.dart';
-import '../../../../core/widgets/gradient_button.dart';
+import '../../../../core/widgets/heritage_backdrop.dart';
 
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
 
+  static const _accent = Color(0xFFE3B75E);
+  static const _logoAsset = 'assets/images/logo.png';
+
+  /// Width of the logo mark. Bigger number = bigger logo.
+  static const _logoWidth = 410.0;
+
+  /// Portion of the PNG kept from the top, cropping off the wordmark below.
+  /// Lower = tighter crop. Tune between 0.50 and 0.80.
+  static const _logoCrop = 0.62;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.primaryTeal, Color(0xFF115E59), AppColors.deepTeal],
-          ),
-        ),
+      body: HeritageBackdrop(
         child: SafeArea(
-          // Wrapped in a scroll view + minHeight constraint instead of
-          // Spacer()s, so a big logo never causes an overflow error on
-          // smaller phones — it just scrolls slightly instead of crashing.
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: constraints.maxHeight),
                   child: IntrinsicHeight(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+                      padding: const EdgeInsets.fromLTRB(28, 8, 28, 16),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            children: [
-                              const SizedBox(height: 8),
-
-                              // Logo — large, using the pre-cropped square
-                              // logo.png (just the icon badge).
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.3),
-                                      blurRadius: 28,
-                                      offset: const Offset(0, 14),
-                                    ),
-                                  ],
-                                ),
-                                child: Image.asset(
-                                  'assets/images/logo.png',
-                                  width: 300,
-                                  height: 300,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-
-                              const Text(
-                                'HeritageLinc',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.4,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8),
-                                child: Text(
-                                  'Navigate your city, discover its stories.\nTransit and heritage, guided by AI.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.85),
-                                    fontSize: 15.5,
-                                    height: 1.55,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 28),
-
-                              // Quick feature highlights
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: const [
-                                  _FeatureChip(icon: Icons.directions_bus_filled_rounded, label: 'Transit'),
-                                  _FeatureChip(icon: Icons.camera_alt_rounded, label: 'AI Scan'),
-                                  _FeatureChip(icon: Icons.groups_rounded, label: 'Field Trips'),
-                                ],
-                              ),
-                            ],
+                          const SizedBox(height: 20),
+                          _buildLogo(),
+                          const SizedBox(height: 18),
+                          const Text(
+                            'HeritageLinc',
+                            style: TextStyle(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: -0.5,
+                            ),
                           ),
-
-                          Column(
-                            children: [
-                              // Subtle fade divider before the actions
-                              Container(
-                                height: 1,
-                                margin: const EdgeInsets.only(bottom: 22, top: 16),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.white.withValues(alpha: 0),
-                                      Colors.white.withValues(alpha: 0.2),
-                                      Colors.white.withValues(alpha: 0),
-                                    ],
-                                  ),
-                                ),
-                              ),
-
-                              LandingPrimaryButton(
-                                label: 'Log In',
-                                onPressed: () => Navigator.pushNamed(context, AppRoutes.login),
-                              ),
-                              const SizedBox(height: 14),
-                              LandingSecondaryButton(
-                                label: 'Create Account',
-                                onPressed: () => Navigator.pushNamed(context, AppRoutes.register),
-                              ),
-
-                              const SizedBox(height: 20),
-                              Text(
-                                'SDG 4 · Quality Education      SDG 11 · Sustainable Cities',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.55),
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                            ],
+                          const SizedBox(height: 12),
+                          Text(
+                            'Navigate your city, discover its stories.\n'
+                            'Transit and heritage, guided by AI.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14.5,
+                              height: 1.45,
+                              color: Colors.white.withValues(alpha: 0.80),
+                            ),
                           ),
+                          const SizedBox(height: 32),
+                          const _FeatureRow(),
+                          const SizedBox(height: 34),
+                          const _Ornament(accent: _accent),
+
+                          // Pushes everything below to the bottom of the screen.
+                          const Spacer(),
+
+                          _buildActions(context),
+                          const SizedBox(height: 18),
+                          Text(
+                            '© 2026 HeritageLinc. All rights reserved.',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              color: Colors.white.withValues(alpha: 0.45),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
                         ],
                       ),
                     ),
@@ -150,39 +85,176 @@ class LandingScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildLogo() {
+    return SizedBox(
+      width: _logoWidth,
+      child: ClipRect(
+        child: Align(
+          alignment: Alignment.topCenter,
+          heightFactor: _logoCrop,
+          child: Image.asset(
+            _logoAsset,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
+            errorBuilder: (context, error, stackTrace) => const SizedBox(
+              height: 120,
+              child: Icon(
+                Icons.broken_image_rounded,
+                color: Colors.white54,
+                size: 40,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActions(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 54,
+          child: FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF0C4A46),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.login),
+            child: const Text('Log In'),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 54,
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.white,
+              side: BorderSide(
+                color: Colors.white.withValues(alpha: 0.45),
+                width: 1.3,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.register),
+            child: const Text('Create Account'),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
-/// Small pill showing one of the app's core features, used on the landing
-/// screen to hint at what the app does beyond just the logo + tagline.
+class _FeatureRow extends StatelessWidget {
+  const _FeatureRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _FeatureChip(icon: Icons.directions_bus_rounded, label: 'Transit'),
+        _FeatureChip(icon: Icons.camera_alt_rounded, label: 'AI Scan'),
+        _FeatureChip(icon: Icons.groups_rounded, label: 'Field Trips'),
+      ],
+    );
+  }
+}
+
 class _FeatureChip extends StatelessWidget {
+  const _FeatureChip({required this.icon, required this.label});
+
   final IconData icon;
   final String label;
-
-  const _FeatureChip({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(13),
+          width: 56,
+          height: 56,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.12),
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
+            color: Colors.white.withValues(alpha: 0.12),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.20)),
           ),
-          child: Icon(icon, color: Colors.white, size: 21),
+          child: Icon(icon, color: Colors.white, size: 24),
         ),
-        const SizedBox(height: 9),
+        const SizedBox(height: 10),
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.85),
-            fontSize: 11.5,
-            fontWeight: FontWeight.w600,
+            fontSize: 12.5,
+            fontWeight: FontWeight.w500,
+            color: Colors.white.withValues(alpha: 0.88),
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Hairline rule with a centred diamond — breaks up the middle of the screen.
+class _Ornament extends StatelessWidget {
+  const _Ornament({required this.accent});
+
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: _rule(toRight: true)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Transform.rotate(
+            angle: 0.785398, // 45°
+            child: Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.85),
+                borderRadius: BorderRadius.circular(1.5),
+              ),
+            ),
+          ),
+        ),
+        Expanded(child: _rule(toRight: false)),
+      ],
+    );
+  }
+
+  Widget _rule({required bool toRight}) {
+    return Container(
+      height: 1,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: toRight ? Alignment.centerLeft : Alignment.centerRight,
+          end: toRight ? Alignment.centerRight : Alignment.centerLeft,
+          colors: [
+            Colors.white.withValues(alpha: 0.0),
+            Colors.white.withValues(alpha: 0.30),
+          ],
+        ),
+      ),
     );
   }
 }
