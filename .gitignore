@@ -43,3 +43,16 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Client configuration is supplied locally; never commit private credentials.
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.pem
+*.p12
+**/key.properties
+**/credentials.json
+*service-account*.json
+*firebase-adminsdk*.json
